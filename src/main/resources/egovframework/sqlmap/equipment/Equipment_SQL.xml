@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap >
+
+<typeAlias alias="equipmentVO" type="kr.re.nnibr.equipment.service.EquipmentVO"/>
+<typeAlias alias="fileInfoVO" type="kr.re.nnibr.equipment.service.FileInfoVO"/>
+<typeAlias alias="categoryVO" type="kr.re.nnibr.equipment.service.CategoryVO"/>
+<typeAlias alias="locationVO" type="kr.re.nnibr.equipment.service.LocationVO"/>
+<typeAlias alias="managerVO" type="kr.re.nnibr.equipment.service.ManagerVO"/>
+
+<resultMap id="equipment" class="kr.re.nnibr.equipment.service.EquipmentVO">
+<result property="equipId" column="equip_id"/>
+<result property="equipName" column="equip_name"/>
+<result property="equipNameEn" column="equip_name_en"/>
+<result property="assetName" column="asset_name"/>
+<result property="manufacturer" column="manufacturer"/>
+<result property="productName" column="product_name"/>
+<result property="itemName" column="item_name"/>
+<result property="acquisitionDate" column="acquisition_date"/>
+<result property="acquisitionCost" column="acquisition_cost"/>
+<result property="quantity" column="quantity"/>
+<result property="equipStatusType" column="equip_status_type"/>
+<result property="description" column="description"/>
+<result property="configuration" column="configuration"/>
+<result property="utilization" column="utilization"/>
+<result property="categoryId" column="category_category_id"/>
+<result property="category" select="selectCategory" column="categoryId=category_category_id"/>
+<result property="managerId" column="manager_manager_id"/>
+<result property="managerVO" select="selectManager" column="managerId=manager_manager_id"/>
+<result property="isCommonEquip" column="is_common_equip"/>
+<result property="isReservable" column="is_reservable"/>
+<result property="locationId" column="location_location_id"/>
+<result property="locationVO" select="selectLocation" column="locationId=location_location_id"/>
+<result property="fileInfos" select="selectFileInfoList" column="equipId=equip_id"/>
+</resultMap>
+
+<resultMap id="equipmentList" class="kr.re.nnibr.equipment.service.EquipmentVO">
+<result property="equipId" column="equip_id"/>
+<result property="equipName" column="equip_name"/>
+<result property="equipNameEn" column="equip_name_en"/>
+<result property="assetName" column="asset_name"/>
+<result property="manufacturer" column="manufacturer"/>
+<result property="productName" column="product_name"/>
+<result property="itemName" column="item_name"/>
+<result property="acquisitionDate" column="acquisition_date"/>
+<result property="acquisitionCost" column="acquisition_cost"/>
+<result property="quantity" column="quantity"/>
+<result property="equipStatusType" column="equip_status_type"/>
+<result property="description" column="description"/>
+<result property="configuration" column="configuration"/>
+<result property="utilization" column="utilization"/>
+<result property="categoryId" column="category_category_id"/>
+<result property="category" select="selectCategory" column="categoryId=category_category_id"/>
+<result property="managerId" column="manager_manager_id"/>
+<result property="isCommonEquip" column="is_common_equip"/>
+<result property="isReservable" column="is_reservable"/>
+<result property="locationId" column="location_location_id"/>
+<result property="locationVO" select="selectLocation" column="locationId=location_location_id"/>
+<result property="fileInfos" select="selectFileInfoList" column="equipId=equip_id"/>
+</resultMap>
+
+<resultMap id="fileInfo" class="kr.re.nnibr.equipment.service.FileInfoVO">
+<result property="uuid" column="uuid"/>
+<result property="fileInfoId" column="file_info_id"/>
+<result property="fileName" column="file_name"/>
+<result property="filesize" column="filesize"/>
+<result property="equipmentEquipId" column="equipment_equip_id"/>
+</resultMap>
+
+<resultMap id="category" class="kr.re.nnibr.equipment.service.CategoryVO">
+<result property="categoryId" column="category_id"/>
+<result property="categoryName" column="category_name"/>
+<result property="categoryNameEn" column="category_name_en"/>
+<result property="parentCategory" select="selectParentCategory" column="categoryId = parent_category_category_id"/>
+</resultMap>
+
+<resultMap id="parentCategory" class="kr.re.nnibr.equipment.service.CategoryVO">
+<result property="categoryId" column="category_id"/>
+<result property="categoryName" column="category_name"/>
+<result property="categoryNameEn" column="category_name_en"/>
+</resultMap>
+
+
+<resultMap id="location" class="kr.re.nnibr.equipment.service.LocationVO">
+<result property="locationName" column="location_name"/>
+</resultMap>
+
+<resultMap id="manager" class="kr.re.nnibr.equipment.service.ManagerVO">
+<result property="managerId" column="manager_id"/>
+<result property="name" column="name"/>
+<result property="phone" column="phone"/>
+<result property="email" column="email"/>
+<result property="department" column="department"/>
+</resultMap>
+
+<insert id="equipmentDAO.insert" parameterClass="equipmentVO">
+<![CDATA[
+
+	INSERT INTO equipment (equip_name, equip_name_en, asset_name, manufacturer, product_name, item_name, acquisition_date,
+						acquisition_cost, quantity, description, configuration, utilization, category_category_id,
+						manager_manager_id, is_common_equip, location_location_id) 
+    VALUES 
+          (#equipName#, #equipNameEn#, #assetName#, #manufacturer#, #productName#, #itemName#, #acquisitionDate#, 
+           #acquisitionCost#, #quantity#, #description#, #configuration#, #utilization#, #categoryId#,
+           #managerId#, #isCommonEquip#, #locationId#)
+
+]]>
+</insert>
+
+
+
+<select id="equipmentDAO.selectEquipment" parameterClass="equipmentVO" resultMap="equipment">
+SELECT *
+FROM
+	equipment
+WHERE
+	is_del = "0" AND
+	equip_id = #equipId# AND
+	is_reservable = 1
+</select>
+
+<select id="equipmentDAO.selectEquipmentList" parameterClass="equipmentVO" resultMap="equipmentList">
+SELECT * 
+  FROM
+    equipment
+  where
+  	is_del = "0" AND
+	is_reservable = 1
+  	<isNotEmpty prepend="AND" property="equipName">
+  	<![CDATA[	equip_name LIKE CONCAT ('%', #equipName#,'%')	]]>
+  	</isNotEmpty>
+  	<isNotEmpty prepend="AND" property="equipNameEn">
+  	<![CDATA[	equip_name_en LIKE CONCAT ('%', #equipNameEn#,'%')	]]>
+  	</isNotEmpty>
+  	<isNotEmpty prepend="AND" property="manufacturer">
+  	<![CDATA[	manufacturer LIKE CONCAT ('%', #manufacturer#,'%')	]]>
+  	</isNotEmpty>
+  	
+  	<isGreaterThan prepend="AND" property="parentCategoryIdSrch" compareValue="0">
+  	category_category_id in (
+  		SELECT category_id
+  		FROM category
+  		WHERE
+  			parent_category_category_id = #parentCategoryIdSrch#
+  	)
+  	</isGreaterThan>
+  	<isGreaterThan prepend="AND" property="categoryIdSrch" compareValue="0">
+  	<![CDATA[	category_category_id = #categoryIdSrch#	]]>
+  	</isGreaterThan>
+  		<![CDATA[	LIMIT #recordCountPerPage# OFFSET #firstIndex#	]]> 
+</select>
+
+<select id="equipmentDAO.selectEquipmentListCnt" parameterClass="equipmentVO" resultClass="int">
+SELECT COUNT(equip_id) 
+  FROM
+    equipment
+  where
+  	is_del = "0" AND
+	is_reservable = 1
+  	<isNotEmpty prepend="AND" property="equipName">
+  	<![CDATA[	equip_name LIKE CONCAT ('%', #equipName#,'%')	]]>
+  	</isNotEmpty>
+  	<isNotEmpty prepend="AND" property="equipNameEn">
+  	<![CDATA[	equip_name_en LIKE CONCAT ('%', #equipNameEn#,'%')	]]>
+  	</isNotEmpty>
+  	<isNotEmpty prepend="AND" property="manufacturer">
+  	<![CDATA[	manufacturer LIKE CONCAT ('%', #manufacturer#,'%')	]]>
+  	</isNotEmpty>
+  	
+  	<isGreaterThan prepend="AND" property="parentCategoryIdSrch" compareValue="0">
+  	category_category_id in (
+  		SELECT category_id
+  		FROM category
+  		WHERE
+  			parent_category_category_id = #parentCategoryIdSrch#
+  	)
+  	</isGreaterThan>
+  	<isGreaterThan prepend="AND" property="categoryIdSrch" compareValue="0">
+  	<![CDATA[	category_category_id = #categoryIdSrch#	]]>
+  	</isGreaterThan>
+</select>
+
+<select id="selectFileInfoList" resultMap="fileInfo">
+SELECT * 
+  FROM
+  	file_info
+  WHERE
+  	is_del = "0" AND
+  	equipment_equip_id = #equipId#
+  
+</select>
+
+<select id="selectCategory" resultMap="category">
+SELECT * 
+  FROM
+  	category
+  WHERE
+  	category_id = #categoryId#
+</select>
+
+<select id="selectParentCategory" resultMap="parentCategory">
+SELECT * 
+  FROM
+  	category
+  WHERE
+  	category_id = #categoryId#
+</select>
+
+<select id="selectLocation" resultMap="location">
+SELECT * 
+  FROM
+  	location
+  WHERE
+  	location_id = #locationId#
+</select>
+<select id="selectManager" resultMap="manager">
+SELECT * 
+  FROM
+  	manager
+  WHERE
+  	manager_id = #managerId#
+</select>
+
+
+</sqlMap>

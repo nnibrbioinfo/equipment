@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap >
+
+<typeAlias alias="picVO" type="kr.re.nnibr.equipment.service.PicVO"/>
+
+<resultMap id="picMap" class="kr.re.nnibr.equipment.service.PicVO">
+<result property="name" column="name"/>
+<result property="phone" column="phone"/>
+<result property="fax" column="fax"/>
+<result property="email" column="email"/>
+</resultMap>
+
+<select id="picDAO.selectPicList" resultMap="picMap">
+	SELECT name, phone, fax, email FROM pic
+</select>
+
+<insert id="picDAO.insert" parameterClass="picVO">
+<![CDATA[
+	INSERT INTO pic
+		(name, phone, fax, email) 
+	VALUES 
+		(#name#, #phone#, #fax#, #email#)
+]]>
+</insert>
+
+<update id="picDAO.update" parameterClass="picVO">
+UPDATE pic SET 
+	name = #name#, 
+	phone = #phone#,
+	fax = #fax#,
+	email = #email#
+WHERE pic_id = #picId#
+</update>
+
+<delete id="picDAO.delete" parameterClass="picVO">
+DELETE FROM pic WHERE PIC_ID = #picId#
+</delete>
+
+
+</sqlMap>

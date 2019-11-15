@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap >
+
+<typeAlias alias="applicationFormVO" type="kr.re.nnibr.equipment.service.ApplicationFormVO"/>
+<typeAlias alias="equipmentVO" type="kr.re.nnibr.equipment.service.EquipmentVO"/>
+<typeAlias alias="fileInfoVO" type="kr.re.nnibr.equipment.service.FileInfoVO"/>
+<typeAlias alias="categoryVO" type="kr.re.nnibr.equipment.service.CategoryVO"/>
+<typeAlias alias="locationVO" type="kr.re.nnibr.equipment.service.LocationVO"/>
+<typeAlias alias="managerVO" type="kr.re.nnibr.equipment.service.ManagerVO"/>
+
+<resultMap id="equipmentList" class="kr.re.nnibr.equipment.service.EquipmentVO">
+<result property="equipId" column="equip_id"/>
+<result property="equipName" column="equip_name"/>
+<result property="equipNameEn" column="equip_name_en"/>
+<result property="assetName" column="asset_name"/>
+<result property="manufacturer" column="manufacturer"/>
+<result property="productName" column="product_name"/>
+<result property="itemName" column="item_name"/>
+<result property="acquisitionDate" column="acquisition_date"/>
+<result property="acquisitionCost" column="acquisition_cost"/>
+<result property="quantity" column="quantity"/>
+<result property="description" column="description"/>
+<result property="configuration" column="configuration"/>
+<result property="utilization" column="utilization"/>
+<result property="categoryId" column="category_category_id"/>
+<result property="managerId" column="manager_manager_id"/>
+<result property="isCommonEquip" column="is_common_equip"/>
+<result property="locationId" column="location_location_id"/>
+<result property="managerVO" select="selectManagerByID" column="managerId=manager_manager_id"/>
+<result property="locationVO" select="selectLocation" column="locationId=location_location_id"/>
+</resultMap>
+
+<resultMap class="kr.re.nnibr.equipment.service.ManagerVO" id="managerList">
+<result property="managerId" column="manager_id"/>
+<result property="name" column="name"/>
+<result property="phone" column="phone"/>
+<result property="email" column="email"/>
+<result property="department" column="department"/>
+</resultMap>
+
+<resultMap id="assetNoInfoList" class="kr.re.nnibr.equipment.service.AssetNoInfoVO">
+<result property="assetNoId" column="asset_no_id"/>
+<result property="assetNo" column="asset_no"/>
+<result property="rfid" column="rfid"/>
+</resultMap>
+
+<resultMap id="applicationformList" class="kr.re.nnibr.equipment.service.ApplicationFormVO">
+<result property="applicationId" column="application_id"/>
+<result property="receiptDate" column="receipt_date"/>
+<result property="startDate" column="start_date"/>
+<result property="endDate" column="end_date"/>
+<result property="isAgreePrivacyInfo" column="is_agree_privacyinfo"/>
+<result property="isPermission" column="is_permission"/>
+<result property="equipId" column="equipment_equip_id"/>
+<result property="signature" column="signature"/>
+<result property="denyComment" column="deny_comment"/>
+<result property="applicant" column="applicant"/>
+<result property="affiliation" column="affliation"/>
+<result property="zipcode" column="zipcode"/>
+<result property="address" column="address"/>
+<result property="detailAddress" column="detail_address"/>
+<result property="phone" column="phone"/>
+<result property="email" column="email"/>
+<result property="passwd" column="passwd"/>
+<result property="hours" column="hours"/>
+<result property="purpose" column="purpose"/>
+<result property="equipmentVO" select="selectEquipmentByID" column="{equipId=equipment_equip_id}"/>
+<result property="assetNoInfoVO" select="selectAssetNoById" column="{assetNoId=asset_no_info_asset_no_id}"/>
+</resultMap>
+
+<resultMap id="applicationformDateList" class="kr.re.nnibr.equipment.service.ApplicationFormVO">
+<result property="startDate" column="start_date"/>
+<result property="endDate" column="end_date"/>
+<result property="isPermission" column="is_permission"/>
+<result property="equipId" column="equipment_equip_id"/>
+</resultMap>
+
+<resultMap id="location" class="kr.re.nnibr.equipment.service.LocationVO">
+<result property="locationName" column="location_name"/>
+</resultMap>
+
+<select id="applicationDAO.selectApplicationReserveDates"  parameterClass="applicationFormVO" resultClass="applicationFormVO">
+SELECT
+	start_date AS `startDate`, end_date AS `endDate`, asset_no_info_asset_no_id as `assetNoId`
+FROM
+	applicationforms
+WHERE
+	is_del = "0" AND
+	equipment_equip_id = #equipId# AND
+	is_permission = "1" AND
+	end_date >= date_format(SYSDATE(),'%Y-%m-%d')
+</select>
+
+<insert id="applicationDAO.insert" parameterClass="applicationFormVO" >
+<![CDATA[
+
+	INSERT INTO applicationforms 
+	       (applicant, affliation, zipcode, address, detail_address, phone, email,passwd, receipt_date, start_date, end_date,
+	       hours, purpose, is_agree_privacyinfo, signature, equipment_equip_id,created_date,is_del) 
+	VALUES 
+	      (#applicant#, #affiliation#, #zipcode#, #address#, #detailAddress#, #phone#, #email#, #passwd#, now(), #startDate#, #endDate#,
+	       #hours#, #purpose#, #isAgreePrivacyInfo#, #signature#, #equipId#,now(),0)
+]]>
+
+<selectKey resultClass="int">
+    SELECT LAST_INSERT_ID()
+</selectKey>
+</insert>
+
+
+<select id="applicationDAO.select" parameterClass="applicationFormVO" resultMap="applicationformList">
+	SELECT 
+   			* 
+ 	FROM 
+ 	      applicationforms 
+ 	WHERE  
+ 	 	  is_del = "0" and
+ 	 	  application_id = #applicationId#
+</select>
+
+<select id="applicationDAO.selectDates" parameterClass="applicationFormVO" resultMap="applicationformList">
+	SELECT 
+   			* 
+ 	FROM 
+ 	      applicationforms 
+ 	WHERE  
+ 	 	  is_del = "0" and
+ 	 	  application_id = #applicationId#
+</select>
+
+<select id="selectEquipmentByID" resultMap="equipmentList">
+	SELECT 
+   			* 
+ 	FROM
+ 	      equipment
+ 	WHERE
+ 	 	  equip_id = #equipId#
+</select>
+
+<select id="selectManagerByID" resultMap="managerList">
+	SELECT 
+   			* 
+ 	FROM 
+ 	      manager 
+ 	WHERE  
+ 	 	  manager_id = #managerId#
+</select>
+
+<select id="selectAssetNoById" resultMap="assetNoInfoList">
+	SELECT 
+   			* 
+ 	FROM 
+ 	      asset_no_info 
+ 	WHERE
+ 	 	  asset_no_id = #assetNoId#
+</select>
+<select id="selectAssetNo" resultMap="assetNoInfoList">
+	SELECT 
+   			* 
+ 	FROM 
+ 	      asset_no_info 
+ 	WHERE
+ 	 	  equipment_equip_id = #equipId#
+</select>
+
+</sqlMap>

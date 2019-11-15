@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap ><typeAlias alias="categoryVO" type="kr.re.nnibr.equipment.service.CategoryVO"/>
+
+<resultMap id="categoryList" class="kr.re.nnibr.equipment.service.CategoryVO">
+<result property="categoryId" column="category_id"/>
+<result property="categoryName" column="category_name"/>
+<result property="categoryNameEn" column="category_name_en"/>
+</resultMap>
+
+<resultMap id="category" class="kr.re.nnibr.equipment.service.CategoryVO">
+<result property="categoryId" column="category_id"/>
+<result property="categoryName" column="category_name"/>
+<result property="categoryNameEn" column="category_name_en"/>
+<result property="parentCategory" select="categoryDAO.selectParentCategory" column="categoryId=parent_category_category_id"/>
+</resultMap>
+
+<resultMap id="parentCategory" class="kr.re.nnibr.equipment.service.CategoryVO">
+<result property="categoryId" column="category_id"/>
+<result property="categoryName" column="category_name"/>
+<result property="categoryNameEn" column="category_name_en"/>
+</resultMap>
+
+
+<select id="categoryDAO.selectCategoryList" resultMap="categoryList">
+<![CDATA[
+	SELECT * 
+	  FROM
+	    category
+	  WHERE
+	    is_del = "0" AND
+	    parent_category_category_id is not null
+]]>
+</select>
+
+<select id="categoryDAO.selectCategory" resultMap="category">
+<![CDATA[
+	SELECT * 
+	  FROM
+	    category
+	  WHERE
+	    is_del = "0"
+]]>
+</select>
+
+<select id="categoryDAO.selectParentCategory" resultMap="parentCategory">
+SELECT * 
+  FROM
+  	category
+  WHERE
+	is_del = "0" AND
+  	category_id = #categoryId#
+</select>
+
+</sqlMap>

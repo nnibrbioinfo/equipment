@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap >
+<typeAlias alias="AssetNoInfoVO" type="kr.re.nnibr.equipment.service.AssetNoInfoVO"/>
+
+<select id="assetNoInfoDAO.selectAssetNoInfoCnt" parameterClass="AssetNoInfoVO" resultClass="int">
+	SELECT 
+   			COUNT(asset_no_id)
+ 	FROM 
+			asset_no_info 
+ 	WHERE  
+			is_del = "0" and
+			equipment_equip_id = #equipId#
+</select>
+
+</sqlMap>
